@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+########################################################################
+# Filename    : ColorfulLED.py
+# Description : Random color change ColorfulLED with color names
+# Author      : www.freenove.com
+# modification: 2023/05/11
+########################################################################
+from gpiozero import RGBLED
+import time
+import random
+
+#led = RGBLED(red="J8:11", green="J8:12", blue="J8:13", active_high=False) # define the pins for R:11,G:12,B:13
+led = RGBLED(red=17, green=18, blue=27, active_high=False) # define the pins for R:GPIO17,G:GPIO18,B:GPIO27 
+# If your RGBLED is a common cathode LED, set active_high to True
+
+# Define a list of colors and their approximate RGB values
+color_names = {
+    "Red": (100, 0, 0),
+    "Green": (0, 100, 0),
+    "Blue": (0, 0, 100),
+    "Yellow": (100, 100, 0),
+    "Cyan": (0, 100, 100),
+    "Magenta": (100, 0, 100),
+    "White": (100, 100, 100),
+    "Black": (0, 0, 0),
+    "Orange": (100, 50, 0),
+    "Pink": (100, 50, 80),
+    "Purple": (75, 0, 75),
+    "Light Blue": (50, 50, 100),
+    "Light Green": (50, 100, 50),
+    "Dark Green": (0, 50, 0),
+    "Lime": (75, 100, 0),
+    "Olive": (50, 50, 0),
+    "Brown": (50, 25, 0),
+    "Beige": (100, 85, 70),
+    "Violet": (80, 0, 80),
+    "Teal": (0, 50, 50),
+    "Lavender": (75, 50, 100),
+    "Indigo": (30, 0, 60),
+    "Maroon": (50, 0, 0),
+    "Turquoise": (50, 100, 75),
+    "Coral": (100, 50, 50),
+    "Gold": (100, 85, 0),
+    "Silver": (75, 75, 75),
+    "Plum": (60, 0, 60),
+    "Mint": (50, 100, 75),
+    "Seafoam": (60, 100, 60),
+    "Chartreuse": (75, 100, 0),
+    "Sky Blue": (50, 75, 100),
+    "Peach": (100, 75, 50),
+    "Rose": (100, 25, 50),
+    "Azure": (50, 75, 100),
+    "Periwinkle": (60, 50, 100),
+    "Emerald": (0, 100, 50),
+    "Cerulean": (25, 50, 100),
+    "Tan": (75, 60, 30),
+    "Slate Blue": (50, 25, 75),
+    "Teal Blue": (25, 50, 50),
+    "Ice Blue": (75, 100, 100),
+    "Sapphire": (25, 25, 75),
+    "Mauve": (60, 50, 75),
+    "Copper": (75, 40, 0),
+    "Aqua": (0, 100, 100)
+}
+
+
+# Function to determine the closest color name based on RGB values
+def get_color_name(r, g, b):
+    closest_color = None
+    smallest_distance = float('inf')
+    for color, (cr, cg, cb) in color_names.items():
+        # Calculate Euclidean distance between the current color and the target color
+        distance = ((cr - r)**2 + (cg - g)**2 + (cb - b)**2) ** 0.5
+        if distance < smallest_distance:
+            smallest_distance = distance
+            closest_color = color
+    return closest_color
+
+def setColor(r_val, g_val, b_val):  # change duty cycle for three pins to r_val, g_val, b_val
+    led.red = r_val / 100  # change pwmRed duty cycle to r_val
+    led.green = g_val / 100  # change pwmGreen duty cycle to g_val
+    led.blue = b_val / 100  # change pwmBlue duty cycle to b_val
+
+def loop():
+    while True:
+        r = random.randint(0, 100)  # get a random value in (0, 100)
+        g = random.randint(0, 100)
+        b = random.randint(0, 100)
+        setColor(r, g, b)  # set random as a duty cycle value
+        color_name = get_color_name(r, g, b)  # Get the closest color name
+        print(f'r={r}, g={g}, b={b} -> Color: {color_name}')
+        time.sleep(3)
+
+def destroy():
+    led.close()
+
+if __name__ == '__main__':  # Program entrance
+    print('Program is starting ...')
+    try:
+        loop()
+    except KeyboardInterrupt:  # Press ctrl-c to end the program.
+        destroy()
+        print("Ending program")
